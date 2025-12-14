@@ -34,6 +34,7 @@ const storage = new Storage();
 const bucket = storage.bucket(process.env.BUCKET || "");
 
 const app = express();
+app.disable('x-powered-by');
 app.use(express.json());
 
 app.post("/", async (req, res) => {
