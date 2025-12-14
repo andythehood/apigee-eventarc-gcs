@@ -23,7 +23,6 @@ export const  downloadRevision = async(org:string, type: string, name: string, r
   const n =  encodeURIComponent(name);
   const r =  encodeURIComponent(revision);
 
-  // const url = `https://apigee.googleapis.com/v1/organizations/${org}/${type}/${name}/revisions/${revision}?format=bundle`;
   const url = `https://apigee.googleapis.com/v1/organizations/${o}/${t}/${n}/revisions/${r}?format=bundle`;
 
   const auth = new GoogleAuth({
