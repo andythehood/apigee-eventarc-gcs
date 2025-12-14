@@ -92,82 +92,85 @@ gcloud run services add-iam-policy-binding $CLOUD_RUN_SVC \
   --member="serviceAccount:${SA_EMAIL}" \
   --role="roles/run.invoker"  
 
+EVENT_FILTER_TYPE="type=google.cloud.audit.log.v1.written"
+EVENT_FILTER_SERVICE="serviceName=apigee.googleapis.com"
+
 gcloud eventarc triggers create apigee-proxy-revision-update \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.ApiProxyService.UpdateApiProxyRevision" \
-  --service-account=$SA_EMAIL    
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filters "methodName=google.cloud.apigee.v1.ApiProxyService.UpdateApiProxyRevision" \
+  --service-account $SA_EMAIL    
 
 gcloud eventarc triggers create apigee-proxy-revision-create \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.ApiProxyService.CreateApiProxyRevision" \
-  --service-account=$SA_EMAIL    
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filters "methodName=google.cloud.apigee.v1.ApiProxyService.CreateApiProxyRevision" \
+  --service-account $SA_EMAIL    
 
 gcloud eventarc triggers create apigee-proxy-revision-delete \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.ApiProxyService.DeleteApiProxyRevision" \
-  --service-account=$SA_EMAIL     
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filter "methodName=google.cloud.apigee.v1.ApiProxyService.DeleteApiProxyRevision" \
+  --service-account $SA_EMAIL     
 
 gcloud eventarc triggers create apigee-proxy-delete \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.ApiProxyService.DeleteApiProxy" \
-  --service-account=$SA_EMAIL      
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filters "methodName=google.cloud.apigee.v1.ApiProxyService.DeleteApiProxy" \
+  --service-account $SA_EMAIL      
 
 gcloud eventarc triggers create apigee-sharedflow-revision-update \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.SharedFlowService.UpdateSharedFlowRevision" \
-  --service-account=$SA_EMAIL    
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filters "methodName=google.cloud.apigee.v1.SharedFlowService.UpdateSharedFlowRevision" \
+  --service-account $SA_EMAIL    
 
 gcloud eventarc triggers create apigee-sharedflow-revision-create \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.SharedFlowService.CreateSharedFlowRevision" \
-  --service-account=$SA_EMAIL     
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filters "methodName=google.cloud.apigee.v1.SharedFlowService.CreateSharedFlowRevision" \
+  --service-account $SA_EMAIL     
 
 gcloud eventarc triggers create apigee-sharedflow-revision-delete \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.SharedFlowService.DeleteSharedFlowRevision" \
-  --service-account=$SA_EMAIL     
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filters "methodName=google.cloud.apigee.v1.SharedFlowService.DeleteSharedFlowRevision" \
+  --service-account $SA_EMAIL     
 
 gcloud eventarc triggers create apigee-sharedflow-delete \
   --project $PROJECT_ID \
-  --location=global \
-  --destination-run-service=$CLOUD_RUN_SVC \
-  --destination-run-region=$REGION \
-  --event-filters="type=google.cloud.audit.log.v1.written" \
-  --event-filters="serviceName=apigee.googleapis.com" \
-  --event-filters="methodName=google.cloud.apigee.v1.SharedFlowService.DeleteSharedFlow" \
-  --service-account=$SA_EMAIL      
+  --location global \
+  --destination-run-service $CLOUD_RUN_SVC \
+  --destination-run-region $REGION \
+  --event-filters $EVENT_FILTER_TYPE \
+  --event-filters $EVENT_FILTER_SERVICE \
+  --event-filters "methodName=google.cloud.apigee.v1.SharedFlowService.DeleteSharedFlow" \
+  --service-account $SA_EMAIL      

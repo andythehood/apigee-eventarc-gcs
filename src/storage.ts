@@ -13,14 +13,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-import { Storage } from "@google-cloud/storage";
+import { Bucket } from "@google-cloud/storage";
 import unzipper from "unzipper";
 
 import { log } from "./utils";
-
-const storage = new Storage();
-const bucket = storage.bucket(process.env.BUCKET!);
-
 
 // Basic content-type helper
 const guessContentType = (file: string) => {
@@ -32,6 +28,7 @@ const guessContentType = (file: string) => {
 }
 
 export const saveZip = async (
+  bucket: Bucket,
   type: string,
   name: string,
   revision: string,
@@ -67,6 +64,7 @@ export const saveZip = async (
 }
 
 export const saveMetadata = async (
+  bucket: Bucket,
   type: string,
   name: string,
   revision: string,
@@ -88,7 +86,11 @@ export const saveMetadata = async (
   log(`Saved metadata: ${path}`);
 }
 
-export const archive = async (type: string, name: string) => {
+export const archive = async (
+  bucket: Bucket,
+  type: string,
+  name: string
+) => {
 
   const prefix = `${type}/${name}/`;
   const archivePrefix = `${type}/zzARCHIVE/${name}/`;

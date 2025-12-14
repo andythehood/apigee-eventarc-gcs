@@ -15,18 +15,30 @@
 */
 import express from "express";
 import dotenv from "dotenv";
+import { Storage } from "@google-cloud/storage";
 
-dotenv.config();
 
 import { handleEvent } from "./events";
 import {log} from "./utils";
+
+dotenv.config();
+
+const BUCKET = process.env.BUCKET || "";
+const APIGEE_ORG = process.env.APIGEE_ORG || "";
+if (!BUCKET || !APIGEE_ORG) {
+  console.error(`❌ Missing required environment variables BUCKET=${BUCKET}, APIGEE_ORG=${APIGEE_ORG}`);
+  process.exit(1);
+}
+
+const storage = new Storage();
+const bucket = storage.bucket(process.env.BUCKET || "");
 
 const app = express();
 app.use(express.json());
 
 app.post("/", async (req, res) => {
   try {
-    await handleEvent(req.body);
+    await handleEvent(APIGEE_ORG, bucket, req.body);
     res.status(200).send("OK");
   } catch (err: any) {
     console.error("Error handling event:", err);

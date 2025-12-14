@@ -13,11 +13,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+import { Bucket } from "@google-cloud/storage";
+
 import { downloadRevision } from "./apigee";
 import { saveZip, saveMetadata, archive } from "./storage";
 import { log, modifyFileInZipBuffer } from "./utils";
 
-export const handleEvent = async (event: any) => {
+export const handleEvent = async (apigee_org: string, bucket:Bucket, event: any) => {
   const payload = event?.protoPayload;
   if (!payload) throw new Error("Invalid event payload");
 
@@ -31,7 +33,7 @@ export const handleEvent = async (event: any) => {
   log(`Resource: ${resource}`);
   log(`Response: ${JSON.stringify(response, null, 2)}`);
 
-  if (!resource.startsWith(`organizations/${process.env.APIGEE_ORG}`)) {
+  if (!resource.startsWith(`organizations/${apigee_org}`)) {
     log(`Invalid Organization`);
     return;
   }
@@ -58,9 +60,9 @@ export const handleEvent = async (event: any) => {
     const newDescription = `SOURCE: org=${process.env.APIGEE_ORG} name=${name} rev=${revision} date=${timestamp}`;
 
     const modifiedZip = await modifyFileInZipBuffer(zipBuffer,filename,newDescription)
-    await saveZip(type, name, revision, modifiedZip);
+    await saveZip(bucket,type, name, revision, modifiedZip);
 
-    return saveMetadata(type, name, revision, {
+    return saveMetadata(bucket,type, name, revision, {
       type,
       name,
       revision,
@@ -86,9 +88,9 @@ export const handleEvent = async (event: any) => {
     log(`Revision updated: ${name} rev=${revision}`);
 
     const zipBuffer = await downloadRevision(org, type, name, revision);
-    await saveZip(type, name, revision, zipBuffer);
+    await saveZip(bucket,type, name, revision, zipBuffer);
 
-    return saveMetadata(type, name, revision, {
+    return saveMetadata(bucket,type, name, revision, {
       type,
       name,
       revision,
@@ -110,7 +112,7 @@ export const handleEvent = async (event: any) => {
 
     log(`Revision deleted: ${name} rev=${revision}`);
 
-    return saveMetadata(type, name, revision, {
+    return saveMetadata(bucket,type, name, revision, {
       type,
       name,
       revision,
@@ -132,7 +134,7 @@ export const handleEvent = async (event: any) => {
     const name = resourceParts[3];
 
     log(`Proxy/Sharedflow deleted: ${name}`);
-    return archive(type, name);
+    return archive(bucket,type, name);
   }
 
   log("Ignored event", method);

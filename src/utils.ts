@@ -26,59 +26,54 @@ const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
  * @param {string} newContent - The new content to replace the file's current content.
  * @returns {Promise<Buffer>} A Promise that resolves with the modified ZIP file as a Buffer.
  */
-export const  modifyFileInZipBuffer = async (zipBuffer: Buffer, fileNameToModify: string, newDescription: string): Promise<Buffer> => {
-    console.log('Starting in-memory ZIP modification...');
-    
-    // 1. Load the ZIP data from the input Buffer
-    const zip = await JSZip.loadAsync(zipBuffer);
+export const modifyFileInZipBuffer = async (zipBuffer: Buffer, fileNameToModify: string, newDescription: string): Promise<Buffer> => {
+  console.log('Starting in-memory ZIP modification...');
 
-    // 2. Check and modify the file content
-    const xmlFileEntry = zip.file(fileNameToModify);
+  // 1. Load the ZIP data from the input Buffer
+  const zip = await JSZip.loadAsync(zipBuffer);
 
-    
-    if (xmlFileEntry) {
-        console.log(`Modifying file: ${fileNameToModify}`);
+  // 2. Check and modify the file content
+  const xmlFileEntry = zip.file(fileNameToModify);
 
-        const xmlContent = await xmlFileEntry.async('string');
+  if (xmlFileEntry) {
+    console.log(`Modifying file: ${fileNameToModify}`);
 
-                  let xmlObj = parser.parse(xmlContent.toString());
-        
-        
-                  if (xmlObj.APIProxy) {
-                    xmlObj.APIProxy.Description = newDescription;
-                  } else if (xmlObj.SharedFlowBundle) {
-                    xmlObj.SharedFlowBundle.Description = newDescription;
-                  }
-        
-                  const newXmlContent = builder.build(xmlObj);
-        
-        // Overwrite the file content in the in-memory ZIP object
-        // The second argument can be a string, Buffer, or Stream
-        zip.file(fileNameToModify, newXmlContent);
-        
-        console.log('Modification complete.');
-    } else {
-        console.warn(`File not found in zip: ${fileNameToModify}. Skipping modification.`);
-        // You might decide to throw an error or create the file instead
+    const xmlContent = await xmlFileEntry.async('string');
+
+    let xmlObj = parser.parse(xmlContent.toString());
+
+    if (xmlObj.APIProxy) {
+      xmlObj.APIProxy.Description = newDescription;
+    } else if (xmlObj.SharedFlowBundle) {
+      xmlObj.SharedFlowBundle.Description = newDescription;
     }
 
-    // 3. Generate the new ZIP file buffer
-    console.log('Generating new ZIP archive buffer...');
-    const outputBuffer = await zip.generateAsync({
-        type: 'nodebuffer', // Crucial for getting a Buffer back
-        compression: 'DEFLATE',
-        platform: 'UNIX'
-    });
-    
-    console.log('Finished generating modified ZIP buffer.');
-    return outputBuffer;
+    const newXmlContent = builder.build(xmlObj);
+
+    // Overwrite the file content in the in-memory ZIP object
+    // The second argument can be a string, Buffer, or Stream
+    zip.file(fileNameToModify, newXmlContent);
+
+    console.log('Modification complete.');
+  } else {
+    console.warn(`File not found in zip: ${fileNameToModify}. Skipping modification.`);
+    // You might decide to throw an error or create the file instead
+  }
+
+  // 3. Generate the new ZIP file buffer
+  console.log('Generating new ZIP archive buffer...');
+  const outputBuffer = await zip.generateAsync({
+    type: 'nodebuffer', // Crucial for getting a Buffer back
+    compression: 'DEFLATE',
+    platform: 'UNIX'
+  });
+
+  console.log('Finished generating modified ZIP buffer.');
+  return outputBuffer;
 }
 
 export const log = (...args: string[]) => {
-  // console.log(new Date().toISOString(), ...args);
   console.log(...args);
 }
-
-
 
 module.exports = { modifyFileInZipBuffer, log };
