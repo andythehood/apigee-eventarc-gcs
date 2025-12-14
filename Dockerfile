@@ -16,17 +16,27 @@
 # Build stage
 FROM node:20-slim AS build
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN npm ci
-COPY . .
+COPY tsconfig.json ./
+COPY src ./src
 RUN npx tsc
 
 # Production stage
 FROM node:20-slim
+
+# Create non-root user
+RUN groupadd -r nodeapp && useradd -r -g nodeapp nodeapp
+
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
+
+# Ensure files are owned by non-root user
+RUN chown -R nodeapp:nodeapp /app
+USER nodeapp
+
 ENV PORT=8080
 EXPOSE 8080
 CMD ["node", "dist/index.js"]
