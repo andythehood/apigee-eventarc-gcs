@@ -17,7 +17,7 @@
 FROM node:20-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY tsconfig.json ./
 COPY src ./src
 RUN npx tsc
@@ -30,7 +30,7 @@ RUN groupadd -r nodeapp && useradd -r -g nodeapp nodeapp
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
 COPY --from=build /app/dist ./dist
 
 # Ensure files are owned by non-root user
