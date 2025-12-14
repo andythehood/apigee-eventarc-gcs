@@ -1,0 +1,44 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.log
+
+# Build artifacts
+dist/
+build/
+.next/ # For Next.js projects
+.nuxt/ # For Nuxt.js projects
+out/ # Common output directory
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor and OS specific files
+.DS_Store
+Thumbs.db
+.vscode/ # VS Code settings, if not shared
+*.sublime-project
+*.sublime-workspace
+
+# Test and coverage reports
+coverage/
+.nyc_output/
+
+# Miscellaneous
+*.tgz
+*.zip
+*.rar
+pids
+*.pid
+*.seed
+*.iml
+.idea/ # IntelliJ IDEA project files
