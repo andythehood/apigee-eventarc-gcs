@@ -42,3 +42,6 @@ pids
 *.seed
 *.iml
 .idea/ # IntelliJ IDEA project files
+
+# SonarQube / SonarCloud
+.scannerwork/
