@@ -13,27 +13,26 @@
 # limitations under the License.
 
 
+PROJECT_ID="<your_project_id>"
+BUCKET="${PROJECT_ID}_apigee"
+REGION="us-central1"
+SERVICE_ACCOUNT="apigee-eventarc"
+SA_EMAIL="${SERVICE_ACCOUNT}@${PROJECT_ID}.iam.gserviceaccount.com"
+CLOUD_RUN_SVC="apigee-eventarc-gcs"
+APIGEE_ORG="${PROJECT_ID}"
+
+EVENT_FILTER_TYPE="type=google.cloud.audit.log.v1.written"
+EVENT_FILTER_SERVICE="serviceName=apigee.googleapis.com"
+
 # Enable APIS
 
 gcloud services enable \
   --project $PROJECT_ID \
   apigee.googleapis.com \
   eventarc.googleapis.com \
-  secretmanager.googleapis.com \
   run.googleapis.com \
-  cloudbuild.googleapis.com
-
-# Secret Manager
-# Create Secrets
-
-gcloud secrets create github-app-private-key \
-  --project $PROJECT_ID \
-  --replication-policy="automatic" \
-  --data-file apigee-event-exporter.2025-10-12.private-key.pem
-
-# gcloud secrets versions add github-app-private-key \
-#   --project $PROJECT_ID \
-#   --data-file apigee-event-exporter.2025-10-12.private-key.pem
+  cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com
 
 gcloud iam service-accounts create $SERVICE_ACCOUNT \
   --project $PROJECT_ID \
@@ -42,7 +41,7 @@ gcloud iam service-accounts create $SERVICE_ACCOUNT \
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:${SA_EMAIL}" \
-  --role="roles/apigee.orgAdmin"    
+  --role="roles/apigee.apiReaderV2"    
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:${SA_EMAIL}" \
@@ -50,30 +49,18 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:${SA_EMAIL}" \
-  --role="roles/eventarc.eventReceiver"    
+  --role="roles/run.invoker"    
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:${SA_EMAIL}" \
-  --role="roles/eventarc.eventReceiver"    
+  --role="roles/storage.admin"    
+
+
+# Build and Deploy Cloud Run Service
 
 gcloud builds submit \
   --project $PROJECT_ID \
-  --tag australia-southeast1-docker.pkg.dev/$PROJECT_ID/docker/$CLOUD_RUN_SVC
-
-gcloud run deploy $CLOUD_RUN_SVC \
-  --project $PROJECT_ID \
-  --image australia-southeast1-docker.pkg.dev/$PROJECT_ID/docker/$CLOUD_RUN_SVC \
-  --region $REGION \
-  --platform managed \
-  --service-account $SA_EMAIL \
-  --set-env-vars "PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET" \
-  --ingress internal-and-cloud-load-balancing \
-  --no-allow-unauthenticated
-
-
-gcloud builds submit \
-  --project $PROJECT_ID \
-  --tag australia-southeast1-docker.pkg.dev/$PROJECT_ID/docker/$CLOUD_RUN_SVC
+  --tag us-central1-docker.pkg.dev/$PROJECT_ID/docker/$CLOUD_RUN_SVC
   
 gcloud run deploy $CLOUD_RUN_SVC \
   --project $PROJECT_ID \
@@ -81,10 +68,9 @@ gcloud run deploy $CLOUD_RUN_SVC \
   --region $REGION \
   --platform managed \
   --service-account $SA_EMAIL \
-  --set-env-vars "PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET" \
+  --set-env-vars "APIGEE_ORG=$PROJECT_ID,BUCKET=$BUCKET" \
   --ingress internal-and-cloud-load-balancing \
   --no-allow-unauthenticated
-
 
 gcloud run services add-iam-policy-binding $CLOUD_RUN_SVC \
   --project $PROJECT_ID \
@@ -92,8 +78,7 @@ gcloud run services add-iam-policy-binding $CLOUD_RUN_SVC \
   --member="serviceAccount:${SA_EMAIL}" \
   --role="roles/run.invoker"  
 
-EVENT_FILTER_TYPE="type=google.cloud.audit.log.v1.written"
-EVENT_FILTER_SERVICE="serviceName=apigee.googleapis.com"
+# Create Eventarc Triggers
 
 gcloud eventarc triggers create apigee-proxy-revision-update \
   --project $PROJECT_ID \
