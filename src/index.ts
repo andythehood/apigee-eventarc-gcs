@@ -19,7 +19,7 @@ import { Storage } from "@google-cloud/storage";
 
 
 import { handleEvent } from "./events";
-import {log} from "./utils";
+import { log } from "./utils";
 
 dotenv.config();
 
@@ -33,7 +33,7 @@ if (!BUCKET || !APIGEE_ORG) {
 const storage = new Storage();
 const bucket = storage.bucket(process.env.BUCKET || "");
 
-const app = express();
+export const app = express();
 app.disable('x-powered-by');
 app.use(express.json());
 
@@ -48,6 +48,6 @@ app.post("/", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+export const server = app.listen(PORT, () => {
   log(`Apigee Eventarc GCS Exporter listening on ${PORT}`);
 });
